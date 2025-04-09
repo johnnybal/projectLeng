@@ -18,7 +18,7 @@ LengLeng/
 ## Features
 
 ### Mobile App
-- User Authentication
+- User Authentication with Firebase
 - School-based Social Networking
 - Invitation System
 - Real-time Messaging
@@ -41,6 +41,40 @@ LengLeng/
 - Node.js 16.0+
 - Firebase Account
 - Git
+
+### Firebase Setup (Required)
+
+1. Create a Firebase Project:
+   - Go to [Firebase Console](https://console.firebase.google.com/)
+   - Click "Add Project" and follow the setup wizard
+   - Enable Google Analytics if needed
+
+2. Configure Firebase Services:
+   - Enable Authentication
+     - Go to Authentication > Sign-in method
+     - Enable Phone Number authentication
+   - Set up Firestore Database
+     - Go to Firestore Database
+     - Create database in your preferred region
+     - Start in production mode
+   - Set up Storage (for media files)
+     - Go to Storage
+     - Initialize Cloud Storage
+
+3. Configure iOS App:
+   - In Firebase Console:
+     - Go to Project Settings > Your Apps
+     - Click iOS icon (</>) to register app
+     - Download `GoogleService-Info.plist`
+     - Place it in the `Sources/` directory
+     - Add to Xcode project but DO NOT commit to git
+
+4. Configure Admin Panel:
+   - In Firebase Console:
+     - Go to Project Settings > Service Accounts
+     - Click "Generate New Private Key"
+     - Save as `Admin-Panel/credentials/firebase-admin-sdk.json`
+     - Add this path to your `.gitignore`
 
 ### Setting Up the iOS App
 
@@ -78,10 +112,24 @@ npm install
 3. Set up environment variables:
 ```bash
 cp .env.example .env
-# Edit .env with your configuration
 ```
 
-4. Start the development server:
+4. Configure your `.env` file:
+```
+PORT=3000
+NODE_ENV=development
+
+# Firebase Admin SDK
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_PRIVATE_KEY="your-private-key"
+FIREBASE_CLIENT_EMAIL=your-client-email
+FIREBASE_STORAGE_BUCKET=your-storage-bucket
+
+# Session
+SESSION_SECRET=your-secret-key-here
+```
+
+5. Start the development server:
 ```bash
 npm run dev
 ```
@@ -89,6 +137,27 @@ npm run dev
 ## API Documentation
 
 The backend API documentation can be found in the [Admin-Panel/README.md](Admin-Panel/README.md) file.
+
+## Security Notes
+
+- Never commit Firebase credentials to version control
+- Keep your `credentials` directory and `.env` file in `.gitignore`
+- Regularly rotate your Firebase private keys
+- Use environment variables for all sensitive configuration
+
+## Troubleshooting
+
+### Common Issues:
+
+1. **Firebase Authentication Failed**:
+   - Verify your Firebase credentials are correctly placed
+   - Check if your environment variables match your Firebase project settings
+   - Ensure your Firebase project has the necessary services enabled
+
+2. **Port Already in Use**:
+   - Check if another instance is running on port 3000
+   - Kill existing Node.js processes: `pkill -f node`
+   - Or change the port in `.env`
 
 ## Contributing
 
