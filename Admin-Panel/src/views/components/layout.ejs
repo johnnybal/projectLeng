@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LengLeng Admin - <%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.0.7/css/boxicons.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Date Range Picker -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bx-analyse'></i>
+            <span class="logo_name">LengLeng Admin</span>
+        </div>
+        <ul class="nav-links">
+            <li class="<%= active === 'dashboard' ? 'active' : '' %>">
+                <a href="/">
+                    <i class='bx bx-grid-alt'></i>
+                    <span class="link_name">Dashboard</span>
+                </a>
+            </li>
+            <li class="<%= active === 'engagement' ? 'active' : '' %>">
+                <a href="/engagement">
+                    <i class='bx bx-user-pin'></i>
+                    <span class="link_name">User Engagement</span>
+                </a>
+            </li>
+            <li class="<%= active === 'polls' ? 'active' : '' %>">
+                <a href="/polls">
+                    <i class='bx bx-poll'></i>
+                    <span class="link_name">Poll Metrics</span>
+                </a>
+            </li>
+            <li class="<%= active === 'retention' ? 'active' : '' %>">
+                <a href="/retention">
+                    <i class='bx bx-refresh'></i>
+                    <span class="link_name">Retention</span>
+                </a>
+            </li>
+            <li class="<%= active === 'conversion' ? 'active' : '' %>">
+                <a href="/conversion">
+                    <i class='bx bx-trending-up'></i>
+                    <span class="link_name">Conversion</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <section class="home-section">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <div class="sidebar-button">
+                    <i class='bx bx-menu sidebarBtn'></i>
+                    <span class="dashboard"><%= title %></span>
+                </div>
+                <div class="ms-auto">
+                    <div class="school-filter">
+                        <select class="form-select" id="schoolFilter">
+                            <option value="">All Schools</option>
+                            <!-- Schools will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <div class="container-fluid">
+                <!-- Date Range Filter -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="date-range-picker">
+                            <i class='bx bx-calendar'></i>
+                            <input type="text" id="dateRange" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <%- body %>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar Toggle
+        let sidebar = document.querySelector(".sidebar");
+        let sidebarBtn = document.querySelector(".sidebarBtn");
+        sidebarBtn.onclick = function() {
+            sidebar.classList.toggle("active");
+        }
+
+        // Initialize Date Range Picker
+        $(document).ready(function() {
+            $('#dateRange').daterangepicker({
+                startDate: moment().subtract(29, 'days'),
+                endDate: moment(),
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, function(start, end) {
+                // Trigger event to refresh data
+                window.dispatchEvent(new CustomEvent('dateRangeChanged', {
+                    detail: { start, end }
+                }));
+            });
+        });
+    </script>
+    <!-- Page Specific Scripts -->
+    <%- script %>
+</body>
+</html> 

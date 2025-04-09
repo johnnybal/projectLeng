@@ -1,0 +1,223 @@
+<%- include('../components/layout', {title: title, currentPage: currentPage}) %>
+
+<div class="content-body">
+  <!-- Overview Stats -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Overall Retention</h4>
+        <p class="stat" id="overallRetention">--%</p>
+        <small class="trend positive">+1.2% vs last month</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Day 7 Retention</h4>
+        <p class="stat" id="day7Retention">--%</p>
+        <small class="trend">Current Cohort</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Day 30 Retention</h4>
+        <p class="stat" id="day30Retention">--%</p>
+        <small class="trend negative">-0.5% vs last month</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Churn Rate</h4>
+        <p class="stat" id="churnRate">--%</p>
+        <small class="trend">Monthly Average</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Retention Heatmap -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>Cohort Retention Analysis</h5>
+          <div class="card-header-actions">
+            <select id="cohortPeriod" class="form-select form-select-sm">
+              <option value="weekly">Weekly Cohorts</option>
+              <option value="monthly">Monthly Cohorts</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered retention-heatmap" id="retentionHeatmap">
+              <thead>
+                <tr>
+                  <th>Cohort</th>
+                  <th>Size</th>
+                  <th>Week 1</th>
+                  <th>Week 2</th>
+                  <th>Week 3</th>
+                  <th>Week 4</th>
+                  <th>Week 5</th>
+                  <th>Week 6</th>
+                  <th>Week 7</th>
+                  <th>Week 8</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="10" class="text-center">Loading cohort data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Retention Trends -->
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>Retention Trends</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="retentionTrend"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5>User Segments</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="segmentRetention"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize charts
+  const trendCtx = document.getElementById('retentionTrend').getContext('2d');
+  const segmentCtx = document.getElementById('segmentRetention').getContext('2d');
+
+  // Retention Trend Chart
+  new Chart(trendCtx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length: 12}, (_, i) => {
+        const d = new Date();
+        d.setMonth(d.getMonth() - (11 - i));
+        return d.toLocaleDateString('en-US', {month: 'short'});
+      }),
+      datasets: [{
+        label: 'Day 7 Retention',
+        data: [65, 67, 70, 68, 72, 75, 73, 70, 72, 74, 76, 75],
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }, {
+        label: 'Day 30 Retention',
+        data: [45, 48, 50, 47, 52, 55, 53, 51, 54, 56, 55, 54],
+        borderColor: 'rgb(255, 99, 132)',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: value => value + '%'
+          }
+        }
+      }
+    }
+  });
+
+  // Segment Retention Chart
+  new Chart(segmentCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Students', 'Teachers', 'Parents', 'Admins'],
+      datasets: [{
+        label: 'Day 30 Retention by Segment',
+        data: [75, 85, 65, 90],
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.5)',
+          'rgba(54, 162, 235, 0.5)',
+          'rgba(255, 206, 86, 0.5)',
+          'rgba(255, 99, 132, 0.5)'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: value => value + '%'
+          }
+        }
+      }
+    }
+  });
+
+  // Load retention metrics
+  fetch('/api/analytics/retention/metrics')
+    .then(response => response.json())
+    .then(data => {
+      // Update overview stats
+      document.getElementById('overallRetention').textContent = `${data.overallRetention}%`;
+      document.getElementById('day7Retention').textContent = `${data.day7Retention}%`;
+      document.getElementById('day30Retention').textContent = `${data.day30Retention}%`;
+      document.getElementById('churnRate').textContent = `${data.churnRate}%`;
+      
+      // Update retention heatmap
+      updateRetentionHeatmap(data.cohorts);
+    })
+    .catch(error => console.error('Error loading retention metrics:', error));
+});
+
+// Update retention heatmap
+function updateRetentionHeatmap(cohorts) {
+  const heatmap = document.getElementById('retentionHeatmap').getElementsByTagName('tbody')[0];
+  if (cohorts && cohorts.length > 0) {
+    heatmap.innerHTML = cohorts.map(cohort => {
+      const cells = cohort.retention.map((value, index) => {
+        const opacity = value / 100;
+        return `<td style="background-color: rgba(75, 192, 192, ${opacity})">${value}%</td>`;
+      }).join('');
+      
+      return `
+        <tr>
+          <td>${cohort.date}</td>
+          <td>${cohort.size}</td>
+          ${cells}
+        </tr>
+      `;
+    }).join('');
+  }
+}
+
+// Cohort period filter
+document.getElementById('cohortPeriod').addEventListener('change', function(e) {
+  const period = e.target.value;
+  fetch(`/api/analytics/retention/cohorts?period=${period}`)
+    .then(response => response.json())
+    .then(data => {
+      updateRetentionHeatmap(data.cohorts);
+    })
+    .catch(error => console.error('Error loading cohort data:', error));
+});
+</script> 

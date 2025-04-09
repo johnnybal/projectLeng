@@ -1,0 +1,247 @@
+<!-- Overview Stats -->
+<div class="row">
+    <!-- User Engagement -->
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="number" id="dau">-</div>
+            <div class="label">Daily Active Users</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="number" id="wau">-</div>
+            <div class="label">Weekly Active Users</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="number" id="mau">-</div>
+            <div class="label">Monthly Active Users</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="number" id="totalUsers">-</div>
+            <div class="label">Total Users</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mt-4">
+    <!-- User Activity Trend -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-title">User Activity Trend</div>
+            <div class="chart-container">
+                <canvas id="userActivityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Poll Engagement -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-title">Poll Engagement</div>
+            <div class="chart-container">
+                <canvas id="pollEngagementChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Row -->
+<div class="row mt-4">
+    <!-- Retention Overview -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-title">Retention Overview</div>
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>1-Day Retention</td>
+                            <td id="retention1d">-</td>
+                        </tr>
+                        <tr>
+                            <td>7-Day Retention</td>
+                            <td id="retention7d">-</td>
+                        </tr>
+                        <tr>
+                            <td>30-Day Retention</td>
+                            <td id="retention30d">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Conversion Metrics -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-title">Conversion Metrics</div>
+            <div class="table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Premium Conversion Rate</td>
+                            <td id="premiumConversion">-</td>
+                        </tr>
+                        <tr>
+                            <td>Invite Acceptance Rate</td>
+                            <td id="inviteAcceptance">-</td>
+                        </tr>
+                        <tr>
+                            <td>ARPU</td>
+                            <td id="arpu">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- School Performance -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-title">Top Schools</div>
+            <div class="table-responsive">
+                <table class="table" id="topSchoolsTable">
+                    <thead>
+                        <tr>
+                            <th>School</th>
+                            <th>Active Users</th>
+                            <th>Engagement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page specific scripts -->
+<%- contentFor('script') %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize charts
+    const userActivityCtx = document.getElementById('userActivityChart').getContext('2d');
+    const pollEngagementCtx = document.getElementById('pollEngagementChart').getContext('2d');
+    
+    // User Activity Chart
+    new Chart(userActivityCtx, {
+        type: 'line',
+        data: {
+            labels: [], // Will be populated with dates
+            datasets: [{
+                label: 'Daily Active Users',
+                data: [], // Will be populated with data
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    
+    // Poll Engagement Chart
+    new Chart(pollEngagementCtx, {
+        type: 'bar',
+        data: {
+            labels: [], // Will be populated with poll categories
+            datasets: [{
+                label: 'Participation Rate',
+                data: [], // Will be populated with data
+                backgroundColor: 'rgba(54, 162, 235, 0.5)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    
+    // Load initial data
+    loadDashboardData();
+});
+
+// Function to load dashboard data
+function loadDashboardData() {
+    const dateRange = $('#dateRange').val();
+    const schoolId = $('#schoolFilter').val();
+    
+    fetch(`/api/analytics/dashboard?dateRange=${dateRange}&schoolId=${schoolId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update stats
+            document.getElementById('dau').textContent = data.dau;
+            document.getElementById('wau').textContent = data.wau;
+            document.getElementById('mau').textContent = data.mau;
+            document.getElementById('totalUsers').textContent = data.totalUsers;
+            
+            // Update retention metrics
+            document.getElementById('retention1d').textContent = data.retention.d1 + '%';
+            document.getElementById('retention7d').textContent = data.retention.d7 + '%';
+            document.getElementById('retention30d').textContent = data.retention.d30 + '%';
+            
+            // Update conversion metrics
+            document.getElementById('premiumConversion').textContent = data.conversion.premium + '%';
+            document.getElementById('inviteAcceptance').textContent = data.conversion.invites + '%';
+            document.getElementById('arpu').textContent = '$' + data.conversion.arpu;
+            
+            // Update charts
+            updateCharts(data);
+            
+            // Update top schools table
+            updateTopSchools(data.topSchools);
+        })
+        .catch(error => console.error('Error loading dashboard data:', error));
+}
+
+// Function to update charts with new data
+function updateCharts(data) {
+    // Update User Activity Chart
+    const userActivityChart = Chart.getChart('userActivityChart');
+    userActivityChart.data.labels = data.activityTrend.dates;
+    userActivityChart.data.datasets[0].data = data.activityTrend.users;
+    userActivityChart.update();
+    
+    // Update Poll Engagement Chart
+    const pollEngagementChart = Chart.getChart('pollEngagementChart');
+    pollEngagementChart.data.labels = data.pollEngagement.categories;
+    pollEngagementChart.data.datasets[0].data = data.pollEngagement.rates;
+    pollEngagementChart.update();
+}
+
+// Function to update top schools table
+function updateTopSchools(schools) {
+    const tbody = document.querySelector('#topSchoolsTable tbody');
+    tbody.innerHTML = '';
+    
+    schools.forEach(school => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${school.name}</td>
+            <td>${school.activeUsers}</td>
+            <td>${school.engagement}%</td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Listen for date range changes
+window.addEventListener('dateRangeChanged', function(e) {
+    loadDashboardData();
+});
+
+// Listen for school filter changes
+document.getElementById('schoolFilter').addEventListener('change', function() {
+    loadDashboardData();
+});
+</script> 

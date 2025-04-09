@@ -1,0 +1,218 @@
+<%- include('../components/layout', {title: title, currentPage: currentPage}) %>
+
+<div class="content-body">
+  <!-- Overview Stats -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Total Polls</h4>
+        <p class="stat" id="totalPolls">--</p>
+        <small class="trend positive">+3.8% vs last week</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Active Polls</h4>
+        <p class="stat" id="activePolls">--</p>
+        <small class="trend">Currently Running</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Avg. Response Rate</h4>
+        <p class="stat" id="avgResponseRate">--%</p>
+        <small class="trend positive">+2.1% vs last week</small>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stats-card">
+        <h4>Total Responses</h4>
+        <p class="stat" id="totalResponses">--</p>
+        <small class="trend">All Time</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5>Poll Response Timeline</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="responseTimeline"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h5>Response Distribution</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="responseDistribution"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Poll Performance Table -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5>Poll Performance</h5>
+          <div class="card-header-actions">
+            <select id="pollStatusFilter" class="form-select form-select-sm">
+              <option value="all">All Polls</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Poll Title</th>
+                  <th>Status</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Responses</th>
+                  <th>Response Rate</th>
+                  <th>Completion Time</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="pollPerformanceTable">
+                <tr>
+                  <td colspan="8" class="text-center">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize charts
+  const timelineCtx = document.getElementById('responseTimeline').getContext('2d');
+  const distributionCtx = document.getElementById('responseDistribution').getContext('2d');
+
+  // Response Timeline Chart
+  new Chart(timelineCtx, {
+    type: 'line',
+    data: {
+      labels: Array.from({length: 7}, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return d.toLocaleDateString('en-US', {weekday: 'short'});
+      }),
+      datasets: [{
+        label: 'Responses',
+        data: [250, 320, 280, 400, 350, 450, 380],
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+
+  // Response Distribution Chart
+  new Chart(distributionCtx, {
+    type: 'pie',
+    data: {
+      labels: ['< 1 min', '1-2 mins', '2-5 mins', '> 5 mins'],
+      datasets: [{
+        data: [15, 45, 30, 10],
+        backgroundColor: [
+          'rgba(75, 192, 192, 0.5)',
+          'rgba(54, 162, 235, 0.5)',
+          'rgba(255, 206, 86, 0.5)',
+          'rgba(255, 99, 132, 0.5)'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+
+  // Load poll metrics
+  fetch('/api/analytics/polls/metrics')
+    .then(response => response.json())
+    .then(data => {
+      // Update overview stats
+      document.getElementById('totalPolls').textContent = data.totalPolls || '--';
+      document.getElementById('activePolls').textContent = data.activePolls || '--';
+      document.getElementById('avgResponseRate').textContent = data.avgResponseRate ? `${data.avgResponseRate}%` : '--%';
+      document.getElementById('totalResponses').textContent = data.totalResponses || '--';
+      
+      // Update poll performance table
+      const tableBody = document.getElementById('pollPerformanceTable');
+      if (data.polls && data.polls.length > 0) {
+        tableBody.innerHTML = data.polls.map(poll => `
+          <tr>
+            <td>${poll.title}</td>
+            <td><span class="badge ${poll.status === 'active' ? 'bg-success' : 'bg-secondary'}">${poll.status}</span></td>
+            <td>${new Date(poll.startDate).toLocaleDateString()}</td>
+            <td>${poll.endDate ? new Date(poll.endDate).toLocaleDateString() : 'Ongoing'}</td>
+            <td>${poll.responses}</td>
+            <td>${poll.responseRate}%</td>
+            <td>${poll.avgCompletionTime}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="viewPollDetails('${poll.id}')">
+                <i class="bx bx-show"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    })
+    .catch(error => console.error('Error loading poll metrics:', error));
+});
+
+// Poll status filter
+document.getElementById('pollStatusFilter').addEventListener('change', function(e) {
+  const status = e.target.value;
+  fetch(`/api/analytics/polls/metrics?status=${status}`)
+    .then(response => response.json())
+    .then(data => {
+      // Update table with filtered data
+      const tableBody = document.getElementById('pollPerformanceTable');
+      if (data.polls && data.polls.length > 0) {
+        tableBody.innerHTML = data.polls.map(poll => `
+          <tr>
+            <td>${poll.title}</td>
+            <td><span class="badge ${poll.status === 'active' ? 'bg-success' : 'bg-secondary'}">${poll.status}</span></td>
+            <td>${new Date(poll.startDate).toLocaleDateString()}</td>
+            <td>${poll.endDate ? new Date(poll.endDate).toLocaleDateString() : 'Ongoing'}</td>
+            <td>${poll.responses}</td>
+            <td>${poll.responseRate}%</td>
+            <td>${poll.avgCompletionTime}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" onclick="viewPollDetails('${poll.id}')">
+                <i class="bx bx-show"></i>
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+    })
+    .catch(error => console.error('Error loading filtered poll metrics:', error));
+});
+
+function viewPollDetails(pollId) {
+  window.location.href = `/admin/polls/${pollId}/details`;
+}
+</script> 
