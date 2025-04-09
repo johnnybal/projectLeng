@@ -56,6 +56,9 @@ coverage/
 firebase-debug.log
 serviceAccountKey.json
 
+# Firebase Admin SDK credentials
+Admin-Panel/credentials/lengleng-954fc-firebase-adminsdk-fbsvc-8a2826b235.json
+
 # Xcode
 *.pbxuser
 !default.pbxuser
