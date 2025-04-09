@@ -18,25 +18,28 @@
 	<string>1.0.0</string>
 	<key>CFBundleVersion</key>
 	<integer>1</integer>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>NSContactsUsageDescription</key>
-	<string>LengLeng needs access to your contacts to help you invite friends to join.</string>
-	<key>NSMessageUsageDescription</key>
-	<string>LengLeng needs access to messages to send invitations to your friends.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>sms</string>
 		<string>whatsapp</string>
 		<string>snapchat</string>
+	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSContactsUsageDescription</key>
+	<string>LengLeng needs access to your contacts to help you invite friends to join.</string>
+	<key>NSMessageUsageDescription</key>
+	<string>LengLeng needs access to messages to send invitations to your friends.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
+	<key>UILaunchScreen</key>
+	<dict/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 </dict>
 </plist>

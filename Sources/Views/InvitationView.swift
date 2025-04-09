@@ -1,5 +1,6 @@
 import SwiftUI
 import Contacts
+import ContactsUI
 import MessageUI
 
 struct InvitationView: View {
@@ -202,10 +203,14 @@ struct ContactPickerView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> CNContactPickerViewController {
         let picker = CNContactPickerViewController()
         picker.delegate = context.coordinator
+        picker.predicateForEnablingContact = NSPredicate(format: "phoneNumbers.@count > 0")
+        picker.displayedPropertyKeys = [CNContactPhoneNumbersKey, CNContactGivenNameKey, CNContactFamilyNameKey]
         return picker
     }
     
-    func updateUIViewController(_ uiViewController: CNContactPickerViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: CNContactPickerViewController, context: Context) {
+        // No update needed
+    }
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -221,6 +226,46 @@ struct ContactPickerView: UIViewControllerRepresentable {
         func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
             parent.selectedContact = contact
             parent.presentationMode.wrappedValue.dismiss()
+        }
+        
+        func contactPickerDidCancel(_ picker: CNContactPickerViewController) {
+            parent.presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+// MARK: - Message Composition
+struct MessageComposeView: UIViewControllerRepresentable {
+    let recipients: [String]
+    let messageBody: String
+    @Binding var isPresented: Bool
+    let completion: (Result<MessageComposeResult, Error>) -> Void
+    
+    func makeUIViewController(context: Context) -> MFMessageComposeViewController {
+        let controller = MFMessageComposeViewController()
+        controller.messageComposeDelegate = context.coordinator
+        controller.recipients = recipients
+        controller.body = messageBody
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: MFMessageComposeViewController, context: Context) {}
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, MFMessageComposeViewControllerDelegate {
+        let parent: MessageComposeView
+        
+        init(_ parent: MessageComposeView) {
+            self.parent = parent
+        }
+        
+        func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+            parent.completion(.success(result))
+            parent.isPresented = false
+            controller.dismiss(animated: true)
         }
     }
 } 

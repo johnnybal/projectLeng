@@ -2,90 +2,115 @@
 
 <div class="content-body">
   <!-- Overview Stats -->
-  <div class="row mb-4">
+  <div class="row g-3 mb-4">
     <div class="col-md-3">
-      <div class="stats-card">
-        <h4>Daily Active Users</h4>
-        <p class="stat" id="dauCount">--</p>
-        <small class="trend positive">+2.5% vs yesterday</small>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stats-card">
-        <h4>Weekly Active Users</h4>
-        <p class="stat" id="wauCount">--</p>
-        <small class="trend">This Week</small>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stats-card">
-        <h4>Monthly Active Users</h4>
-        <p class="stat" id="mauCount">--</p>
-        <small class="trend negative">-1.2% vs last month</small>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stats-card">
-        <h4>Avg. Session Duration</h4>
-        <p class="stat" id="avgSessionDuration">--:--</p>
-        <small class="trend">Per User</small>
-      </div>
-    </div>
-  </div>
-
-  <!-- Activity Timeline -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-header">
-          <h5>User Activity Timeline</h5>
-          <div class="card-header-actions">
-            <select id="timelineMetric" class="form-select form-select-sm">
-              <option value="users">Active Users</option>
-              <option value="sessions">Sessions</option>
-              <option value="interactions">Interactions</option>
-            </select>
+      <div class="card stat-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2">Daily Active Users</h6>
+          <h3 class="card-title mb-0" id="dailyActiveUsers">0</h3>
+          <div class="trend up">
+            <i class='bx bx-up-arrow-alt'></i>
+            <span>12%</span>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card">
         <div class="card-body">
-          <canvas id="activityTimeline"></canvas>
+          <h6 class="card-subtitle mb-2">Session Duration</h6>
+          <h3 class="card-title mb-0" id="avgSessionDuration">0m</h3>
+          <div class="trend up">
+            <i class='bx bx-up-arrow-alt'></i>
+            <span>5%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2">Engagement Rate</h6>
+          <h3 class="card-title mb-0" id="engagementRate">0%</h3>
+          <div class="trend down">
+            <i class='bx bx-down-arrow-alt'></i>
+            <span>2%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <h6 class="card-subtitle mb-2">Active Schools</h6>
+          <h3 class="card-title mb-0" id="activeSchools">0</h3>
+          <div class="trend up">
+            <i class='bx bx-up-arrow-alt'></i>
+            <span>10%</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Detailed Metrics -->
-  <div class="row">
+  <!-- Charts -->
+  <div class="row g-3 mb-4">
     <div class="col-md-6">
       <div class="card">
-        <div class="card-header">
-          <h5>User Segments</h5>
-        </div>
         <div class="card-body">
-          <canvas id="userSegments"></canvas>
+          <h5 class="card-title">Daily Active Users Trend</h5>
+          <canvas id="dauTrendChart"></canvas>
         </div>
       </div>
     </div>
     <div class="col-md-6">
       <div class="card">
-        <div class="card-header">
-          <h5>Feature Usage</h5>
-        </div>
         <div class="card-body">
+          <h5 class="card-title">Session Duration Distribution</h5>
+          <canvas id="sessionDurationChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engagement Details -->
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">User Activity by Time</h5>
           <div class="table-responsive">
-            <table class="table">
+            <table class="table" id="activityTable">
               <thead>
                 <tr>
-                  <th>Feature</th>
-                  <th>Users</th>
-                  <th>Usage Time</th>
-                  <th>Trend</th>
+                  <th>Hour</th>
+                  <th>Active Users</th>
+                  <th>Engagement Rate</th>
                 </tr>
               </thead>
-              <tbody id="featureUsageTable">
+              <tbody>
+                <tr><td>Loading...</td><td>-</td><td>-</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Top Active Schools</h5>
+          <div class="table-responsive">
+            <table class="table" id="schoolsTable">
+              <thead>
                 <tr>
-                  <td colspan="4" class="text-center">Loading...</td>
+                  <th>School</th>
+                  <th>Active Users</th>
+                  <th>Engagement Rate</th>
                 </tr>
+              </thead>
+              <tbody>
+                <tr><td>Loading...</td><td>-</td><td>-</td></tr>
               </tbody>
             </table>
           </div>
@@ -93,206 +118,77 @@
       </div>
     </div>
   </div>
-
-  <!-- Session Analysis -->
-  <div class="row mt-4">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h5>Session Duration Distribution</h5>
-        </div>
-        <div class="card-body">
-          <canvas id="sessionDistribution"></canvas>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h5>Peak Usage Hours</h5>
-        </div>
-        <div class="card-body">
-          <canvas id="peakHours"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
+<%- contentFor('scripts') %>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize charts
-  const timelineCtx = document.getElementById('activityTimeline').getContext('2d');
-  const segmentsCtx = document.getElementById('userSegments').getContext('2d');
-  const sessionCtx = document.getElementById('sessionDistribution').getContext('2d');
-  const peakHoursCtx = document.getElementById('peakHours').getContext('2d');
+  const dauTrendCtx = document.getElementById('dauTrendChart').getContext('2d');
+  const sessionDurationCtx = document.getElementById('sessionDurationChart').getContext('2d');
 
-  // Activity Timeline Chart
-  const timelineChart = new Chart(timelineCtx, {
+  // DAU Trend Chart
+  new Chart(dauTrendCtx, {
     type: 'line',
     data: {
-      labels: Array.from({length: 30}, (_, i) => {
+      labels: Array.from({length: 7}, (_, i) => {
         const d = new Date();
-        d.setDate(d.getDate() - (29 - i));
-        return d.toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+        d.setDate(d.getDate() - (6 - i));
+        return d.toLocaleDateString('en-US', {weekday: 'short'});
       }),
       datasets: [{
-        label: 'Active Users',
-        data: [],
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-        fill: true,
-        backgroundColor: 'rgba(75, 192, 192, 0.1)'
+        label: 'Daily Active Users',
+        data: [0, 0, 0, 0, 0, 0, 0],
+        borderColor: '#4CAF50',
+        tension: 0.4
       }]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
       plugins: {
         legend: {
-          position: 'top'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            precision: 0
-          }
+          position: 'top',
         }
       }
     }
   });
 
-  // User Segments Chart
-  new Chart(segmentsCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Power Users', 'Regular Users', 'Occasional Users', 'New Users'],
-      datasets: [{
-        data: [30, 45, 15, 10],
-        backgroundColor: [
-          'rgba(75, 192, 192, 0.8)',
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(255, 206, 86, 0.8)',
-          'rgba(255, 99, 132, 0.8)'
-        ]
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'right'
-        }
-      }
-    }
-  });
-
-  // Session Distribution Chart
-  new Chart(sessionCtx, {
+  // Session Duration Chart
+  new Chart(sessionDurationCtx, {
     type: 'bar',
     data: {
-      labels: ['< 1 min', '1-5 mins', '5-15 mins', '15-30 mins', '> 30 mins'],
+      labels: ['<5min', '5-15min', '15-30min', '>30min'],
       datasets: [{
-        label: 'Sessions',
-        data: [10, 25, 35, 20, 10],
-        backgroundColor: 'rgba(54, 162, 235, 0.8)'
+        label: 'Users',
+        data: [0, 0, 0, 0],
+        backgroundColor: ['#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B']
       }]
     },
     options: {
       responsive: true,
-      maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false
+          position: 'top',
         }
       }
     }
   });
 
-  // Peak Hours Chart
-  new Chart(peakHoursCtx, {
-    type: 'line',
-    data: {
-      labels: Array.from({length: 24}, (_, i) => `${i}:00`),
-      datasets: [{
-        label: 'Active Users',
-        data: Array.from({length: 24}, () => Math.floor(Math.random() * 100)),
-        borderColor: 'rgb(255, 99, 132)',
-        tension: 0.3,
-        fill: true,
-        backgroundColor: 'rgba(255, 99, 132, 0.1)'
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            precision: 0
-          }
-        }
-      }
-    }
-  });
+  // Load engagement data
+  fetch('/api/analytics/engagement/metrics')
+    .then(response => response.json())
+    .then(data => {
+      // Update stats
+      document.getElementById('dailyActiveUsers').textContent = data.dailyActiveUsers || 0;
+      document.getElementById('avgSessionDuration').textContent = data.averageSessionDuration + 'm' || '0m';
+      document.getElementById('engagementRate').textContent = (data.engagementRate || 0) + '%';
+      document.getElementById('activeSchools').textContent = data.activeSchools || 0;
 
-  // Load engagement metrics
-  function loadEngagementMetrics() {
-    fetch('/api/analytics/engagement/metrics')
-      .then(response => response.json())
-      .then(data => {
-        // Update overview stats
-        document.getElementById('dauCount').textContent = data.activeUsers?.daily || '--';
-        document.getElementById('wauCount').textContent = data.activeUsers?.weekly || '--';
-        document.getElementById('mauCount').textContent = data.activeUsers?.monthly || '--';
-        document.getElementById('avgSessionDuration').textContent = 
-          data.sessionDuration?.average ? `${Math.floor(data.sessionDuration.average)}m` : '--';
-
-        // Update timeline chart
-        if (data.activeUsers?.daily) {
-          timelineChart.data.datasets[0].data = data.activeUsers.daily;
-          timelineChart.update();
-        }
-
-        // Update feature usage table
-        const tableBody = document.getElementById('featureUsageTable');
-        if (data.featureUsage && data.featureUsage.length > 0) {
-          tableBody.innerHTML = data.featureUsage.map(feature => `
-            <tr>
-              <td>${feature.name}</td>
-              <td>${feature.users.toLocaleString()}</td>
-              <td>${feature.avgTimePerUser}m</td>
-              <td>
-                <span class="trend ${feature.trend >= 0 ? 'positive' : 'negative'}">
-                  ${feature.trend >= 0 ? '+' : ''}${feature.trend}%
-                </span>
-              </td>
-            </tr>
-          `).join('');
-        }
-      })
-      .catch(error => console.error('Error loading engagement metrics:', error));
-  }
-
-  // Initial load
-  loadEngagementMetrics();
-
-  // Refresh every 5 minutes
-  setInterval(loadEngagementMetrics, 5 * 60 * 1000);
-
-  // Timeline metric change handler
-  document.getElementById('timelineMetric').addEventListener('change', function(e) {
-    const metric = e.target.value;
-    timelineChart.data.datasets[0].label = {
-      'users': 'Active Users',
-      'sessions': 'Total Sessions',
-      'interactions': 'User Interactions'
-    }[metric];
-    loadEngagementMetrics();
-  });
+      // Update charts and tables
+      // ... Add code to update charts with real data
+    })
+    .catch(error => {
+      console.error('Error loading engagement data:', error);
+    });
 });
 </script> 

@@ -1,0 +1,11 @@
+framework module LengLeng {
+    umbrella header "LengLeng.h"
+    
+    export *
+    module * { export * }
+}
+
+module LengLeng.Swift {
+    header "LengLeng-Swift.h"
+    requires objc
+} 

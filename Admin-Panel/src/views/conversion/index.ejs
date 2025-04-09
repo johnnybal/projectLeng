@@ -1,0 +1,201 @@
+<!-- Overview Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Overall Conversion</h6>
+                <h3 class="card-title mb-0" id="overallConversion">0%</h3>
+                <div class="trend up">
+                    <i class='bx bx-up-arrow-alt'></i>
+                    <span>3.5%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Sign-up Rate</h6>
+                <h3 class="card-title mb-0" id="signupRate">0%</h3>
+                <div class="trend up">
+                    <i class='bx bx-up-arrow-alt'></i>
+                    <span>2.1%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Activation Rate</h6>
+                <h3 class="card-title mb-0" id="activationRate">0%</h3>
+                <div class="trend down">
+                    <i class='bx bx-down-arrow-alt'></i>
+                    <span>1.2%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2">Avg. Time to Convert</h6>
+                <h3 class="card-title mb-0" id="timeToConvert">0d</h3>
+                <div class="trend down">
+                    <i class='bx bx-down-arrow-alt'></i>
+                    <span>0.5d</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Conversion Funnel</h5>
+                <canvas id="funnelChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Conversion Trend</h5>
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Conversion Details -->
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Conversion by Source</h5>
+                <div class="table-responsive">
+                    <table class="table" id="sourceTable">
+                        <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Users</th>
+                                <th>Conversion Rate</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Drop-off Analysis</h5>
+                <div class="table-responsive">
+                    <table class="table" id="dropoffTable">
+                        <thead>
+                            <tr>
+                                <th>Stage</th>
+                                <th>Drop-off Rate</th>
+                                <th>Main Reason</th>
+                                <th>Action Items</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- contentFor('scripts') %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize charts
+    const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+
+    // Conversion Funnel Chart
+    new Chart(funnelCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Visitors', 'Sign-ups', 'Activated', 'Active Users'],
+            datasets: [{
+                label: 'Users',
+                data: [0, 0, 0, 0],
+                backgroundColor: '#4CAF50',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Conversion Trend Chart
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [{
+                label: 'Conversion Rate',
+                data: [0, 0, 0, 0],
+                borderColor: '#2196F3',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Load conversion data
+    fetch('/api/analytics/conversion/metrics')
+        .then(response => response.json())
+        .then(data => {
+            // Update stats
+            document.getElementById('overallConversion').textContent = (data.overallRate || 0) + '%';
+            document.getElementById('signupRate').textContent = (data.signupRate || 0) + '%';
+            document.getElementById('activationRate').textContent = (data.activationRate || 0) + '%';
+            document.getElementById('timeToConvert').textContent = (data.avgTimeToConvert || 0) + 'd';
+
+            // Update charts and tables
+            // ... Add code to update charts with real data
+        })
+        .catch(error => {
+            console.error('Error loading conversion data:', error);
+        });
+});
+</script> 

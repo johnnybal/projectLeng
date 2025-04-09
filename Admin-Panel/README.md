@@ -1,61 +1,63 @@
-# LengLeng Admin Panel & Backend API
+# LengLeng Admin Panel
 
-A comprehensive admin panel and backend API for managing the LengLeng social networking application.
+The administrative dashboard for the LengLeng social networking platform, built with Node.js, Express, and Firebase.
 
 ## Features
 
-### Analytics Dashboard
-- User Engagement Metrics
-- Poll Participation Analytics
-- Retention Analysis
-- Conversion Tracking
-- School-specific Analytics
-
-### Invitation System
-- Invitation Credit Management
-- Dynamic Message Generation
-- Anti-spam Protection
-- Invitation Tracking
-- Conversion Analytics
+- User Analytics Dashboard
+- Engagement Metrics
+- Poll Analytics
+- School Management
+- Invitation System Management
+- User Moderation Tools
 
 ## Tech Stack
 
 - Node.js
 - Express.js
 - Firebase Admin SDK
-- EJS (Template Engine)
-- Chart.js (Data Visualization)
-- Bootstrap 5 (UI Framework)
+- EJS Templates
+- TailwindCSS
 
 ## Prerequisites
 
 - Node.js 16.0+
-- Firebase Account and Project
-- Git
+- Firebase Account
+- Firebase Admin SDK credentials
 
-## Installation
+## Getting Started
 
 1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Create `.env` file:
+2. Set up environment variables:
 ```bash
 cp .env.example .env
 ```
 
-3. Configure environment variables in `.env`:
-```
+3. Configure your `.env` file:
+```env
 PORT=3000
 NODE_ENV=development
-SESSION_SECRET=your-secret-key
+
+# Firebase Admin SDK
 FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_PRIVATE_KEY=your-private-key
+FIREBASE_PRIVATE_KEY="your-private-key"
 FIREBASE_CLIENT_EMAIL=your-client-email
+FIREBASE_STORAGE_BUCKET=your-storage-bucket
+
+# Session
+SESSION_SECRET=your-secret-key-here
 ```
 
-4. Start the development server:
+4. Add Firebase Admin SDK credentials:
+- Go to Firebase Console > Project Settings > Service Accounts
+- Generate a new private key
+- Save as `credentials/firebase-admin-sdk.json`
+
+5. Start the development server:
 ```bash
 npm run dev
 ```
@@ -63,168 +65,45 @@ npm run dev
 ## Project Structure
 
 ```
-src/
-├── config/
-│   └── firebase.js       # Firebase configuration
-│
-├── controllers/
-│   └── AnalyticsController.js
-│
-├── routes/
-│   ├── index.js         # Main router
-│   └── invitation.js    # Invitation system routes
-│
-├── views/
-│   ├── components/      # Reusable view components
-│   ├── dashboard/       # Dashboard views
-│   └── layout.ejs      # Main layout template
-│
-├── public/
-│   ├── css/            # Stylesheets
-│   └── js/             # Client-side JavaScript
-│
-└── server.js           # Application entry point
+Admin-Panel/
+├── src/
+│   ├── config/         # Configuration files
+│   ├── controllers/    # Route controllers
+│   ├── middleware/     # Express middleware
+│   ├── models/         # Data models
+│   ├── public/         # Static files
+│   ├── routes/         # Route definitions
+│   ├── services/       # Business logic
+│   ├── utils/          # Utility functions
+│   ├── views/          # EJS templates
+│   └── server.js       # Entry point
+├── credentials/        # Firebase credentials (gitignored)
+├── scripts/           # Build and utility scripts
+└── package.json
 ```
 
-## API Documentation
+## Available Scripts
 
-### Invitation System API
+- `npm run dev`: Start development server with hot reload
+- `npm start`: Start production server
+- `npm run lint`: Run ESLint
+- `npm run check-deps`: Check for MongoDB references (Firebase-only project)
 
-#### Get Available Invites
-```http
-GET /api/invitation/credits?userId={userId}
-```
+## Security Notes
 
-Response:
-```json
-{
-    "availableInvites": 10
-}
-```
-
-#### Update Invite Credits
-```http
-POST /api/invitation/credits/update
-```
-Body:
-```json
-{
-    "userId": "user123",
-    "amount": 5
-}
-```
-
-#### Send Invitation
-```http
-POST /api/invitation/send
-```
-Body:
-```json
-{
-    "userId": "user123",
-    "recipientPhone": "+1234567890",
-    "recipientName": "John Doe",
-    "schoolName": "Example High School",
-    "messageType": "standard"
-}
-```
-
-#### Get Sent Invitations
-```http
-GET /api/invitation/sent?userId={userId}
-```
-
-Response:
-```json
-{
-    "invitations": [
-        {
-            "id": "inv123",
-            "senderId": "user123",
-            "recipientPhone": "+1234567890",
-            "status": "sent",
-            "createdAt": "2024-04-09T14:22:34.997Z"
-        }
-    ]
-}
-```
-
-#### Update Invitation Status
-```http
-POST /api/invitation/status
-```
-Body:
-```json
-{
-    "invitationId": "inv123",
-    "status": "clicked"
-}
-```
-
-### Analytics API
-
-#### User Engagement
-```http
-GET /api/analytics/engagement
-```
-
-#### Poll Analytics
-```http
-GET /api/analytics/polls
-```
-
-#### Retention Metrics
-```http
-GET /api/analytics/retention
-```
-
-#### Conversion Analytics
-```http
-GET /api/analytics/conversion
-```
-
-## Error Handling
-
-All API endpoints follow a consistent error response format:
-
-```json
-{
-    "error": "Error message description"
-}
-```
-
-Common HTTP status codes:
-- 200: Success
-- 400: Bad Request
-- 401: Unauthorized
-- 403: Forbidden
-- 500: Internal Server Error
-
-## Development
-
-### Running Tests
-```bash
-npm test
-```
-
-### Linting
-```bash
-npm run lint
-```
-
-### Building for Production
-```bash
-npm run build
-```
+- Never commit Firebase credentials
+- Keep `credentials` directory and `.env` in `.gitignore`
+- Regularly rotate Firebase private keys
+- Use environment variables for sensitive data
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
 ## License
 
-This project is licensed under the MIT License. 
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details. 

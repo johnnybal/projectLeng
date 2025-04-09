@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.lengleng
   deploymentTarget:
     iOS: 15.0
+  xcodeVersion: "15.0"
 packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk.git
@@ -17,16 +18,28 @@ targets:
       base:
         INFOPLIST_FILE: Sources/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.lengleng.app
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        TARGETED_DEVICE_FAMILY: 1
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
     info:
       path: Sources/Info.plist
       properties:
+        UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
-        UILaunchStoryboardName: LaunchScreen
-        UIMainStoryboardFile: Main
         CFBundleShortVersionString: 1.0.0
         CFBundleVersion: 1
         LSRequiresIPhoneOS: true
+        NSContactsUsageDescription: LengLeng needs access to your contacts to help you invite friends to join.
+        NSMessageUsageDescription: LengLeng needs access to messages to send invitations to your friends.
+        LSApplicationQueriesSchemes:
+          - sms
+          - whatsapp
+          - snapchat
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
     dependencies:
       - package: Firebase
         product: FirebaseAnalytics
@@ -34,5 +47,25 @@ targets:
         product: FirebaseAuth
       - package: Firebase
         product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseFirestoreSwift
+      - package: Firebase
+        product: FirebaseMessaging
     resources:
-      - path: Sources/GoogleService-Info.plist 
+      - path: Sources/GoogleService-Info.plist
+schemes:
+  LengLeng:
+    build:
+      targets:
+        LengLeng: all
+    run:
+      config: Debug
+      environmentVariables:
+        - variable: OS_ACTIVITY_MODE
+          value: disable
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release 

@@ -3,6 +3,7 @@ const session = require('express-session');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
+const expressLayouts = require('express-ejs-layouts');
 const { logger } = require('./utils/logger');
 const { initializeFirebase } = require('./config/firebase');
 const routes = require('./routes');
@@ -16,6 +17,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+
+// View engine setup
+app.use(expressLayouts);
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.set('layout', 'components/layout');
 
 // Session configuration
 app.use(session({
@@ -31,10 +38,6 @@ app.use(session({
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// View engine setup
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
 // Routes
 app.use('/', routes);
 
@@ -43,8 +46,7 @@ app.use((err, req, res, next) => {
     logger.error(err.stack);
     res.status(500).json({
         success: false,
-        message: 'Internal Server Error',
-        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
     });
 });
 
@@ -61,9 +63,10 @@ const startServer = async () => {
             logger.info(`Server running on port ${PORT}`);
         });
     } catch (error) {
-        logger.error('Failed to start server:', error);
+        logger.error('Error starting server:', error);
         process.exit(1);
     }
 };
 
+// Start the server
 startServer(); 
